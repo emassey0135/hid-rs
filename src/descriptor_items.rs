@@ -243,7 +243,7 @@ impl DescriptorItem {
       },
       DescriptorItem::Delimiter(flag) => {
         data[0..6].store::<u8>(0b1010_10);
-        data.set(8, flag==DelimiterFlag::Open);
+        data.set(15, flag==DelimiterFlag::Open);
       },
     };
     let mut has_value = vec![false; 4];
@@ -355,7 +355,7 @@ impl DescriptorItem {
       0b0111_10 => DescriptorItem::StringIndex(data.load::<u32>()),
       0b1000_10 => DescriptorItem::StringMinimum(data.load::<u32>()),
       0b1001_10 => DescriptorItem::StringMaximum(data.load::<u32>()),
-      0b1010_10 => DescriptorItem::Delimiter(if *data.get(0).unwrap() { DelimiterFlag::Open } else { DelimiterFlag::Close }),
+      0b1010_10 => DescriptorItem::Delimiter(if *data.get(7).unwrap() { DelimiterFlag::Open } else { DelimiterFlag::Close }),
       _ => panic!("Invalid descriptor item"),
     }
   }
