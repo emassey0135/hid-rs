@@ -70,7 +70,7 @@ pub enum DescriptorItem {
   Input { constant: ReportConstantFlag, layout: ReportLayoutFlag, relative: ReportRelativeFlag, wrap: ReportWrapFlag, linear: ReportLinearFlag, preferred_state: ReportPreferredStateFlag, null_state: ReportNullStateFlag, buffered_bytes: ReportBufferedBytesFlag },
   Output { constant: ReportConstantFlag, layout: ReportLayoutFlag, relative: ReportRelativeFlag, wrap: ReportWrapFlag, linear: ReportLinearFlag, preferred_state: ReportPreferredStateFlag, null_state: ReportNullStateFlag, volatile: ReportVolatileFlag, buffered_bytes: ReportBufferedBytesFlag },
   Feature { constant: ReportConstantFlag, layout: ReportLayoutFlag, relative: ReportRelativeFlag, wrap: ReportWrapFlag, linear: ReportLinearFlag, preferred_state: ReportPreferredStateFlag, null_state: ReportNullStateFlag, volatile: ReportVolatileFlag, buffered_bytes: ReportBufferedBytesFlag },
-  Collection { ty: CollectionType },
+  Collection(CollectionType),
   EndCollection,
   UsagePage(u16),
   LogicalMinimum(i32),
@@ -134,7 +134,7 @@ impl DescriptorItem {
         data.set(15, volatile==ReportVolatileFlag::Volatile);
         data.set(16, buffered_bytes==ReportBufferedBytesFlag::BufferedBytes);
       },
-      DescriptorItem::Collection { ty } => {
+      DescriptorItem::Collection(ty) => {
         data[0..6].store::<u8>(0b1010_00);
         data[8..16].store::<u8>(match ty {
           CollectionType::Physical => 0,
@@ -327,19 +327,17 @@ impl DescriptorItem {
         volatile: if *data.get(7).unwrap() { ReportVolatileFlag::Volatile } else { ReportVolatileFlag::NonVolatile },
         buffered_bytes: if *data.get(8).unwrap() { ReportBufferedBytesFlag::BufferedBytes } else { ReportBufferedBytesFlag::BitField },
       },
-      0b1010_00 => DescriptorItem::Collection {
-        ty: match data.load::<u32>() {
-          0 => CollectionType::Physical,
-          1 => CollectionType::Application,
-          2 => CollectionType::Logical,
-          3 => CollectionType::Report,
-          4 => CollectionType::NamedArray,
-          5 => CollectionType::UsageSwitch,
-          6 => CollectionType::UsageModifier,
-          n if n >= 128 && n <= 255 => CollectionType::VendorDefined(n as u8),
-          _ => panic!("Invalid collection type"),
-        },
-      },
+      0b1010_00 => DescriptorItem::Collection(match data.load::<u32>() {
+        0 => CollectionType::Physical,
+        1 => CollectionType::Application,
+        2 => CollectionType::Logical,
+        3 => CollectionType::Report,
+        4 => CollectionType::NamedArray,
+        5 => CollectionType::UsageSwitch,
+        6 => CollectionType::UsageModifier,
+        n if n >= 128 && n <= 255 => CollectionType::VendorDefined(n as u8),
+        _ => panic!("Invalid collection type"),
+      }),
       0b1100_00 => DescriptorItem::EndCollection,
       0b0000_01 => DescriptorItem::UsagePage(data[0..16].load::<u16>()),
       0b0001_01 => DescriptorItem::LogicalMinimum(match size {
