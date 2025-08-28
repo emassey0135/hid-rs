@@ -248,7 +248,7 @@ impl DescriptorItem {
     };
     let mut has_value = vec![false; 4];
     for i in 0..4 {
-      has_value[i] = data[8+i*8..16+i*8].load::<u8>()==0;
+      has_value[i] = data[8+i*8..16+i*8].load::<u8>()!=0;
     };
     let size: u8 = match has_value[..] {
       [false, false, false, false] => 0,
@@ -256,7 +256,7 @@ impl DescriptorItem {
       [true, true, false, false] => 2,
       _ => 4,
     };
-    data.truncate((size+1) as usize);
+    data.truncate((8+size*8) as usize);
     data[6..8].store::<u8>(match size {
       4 => 3,
       size => size,
