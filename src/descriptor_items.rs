@@ -156,19 +156,35 @@ impl DescriptorItem {
       },
       DescriptorItem::LogicalMinimum(minimum) => {
         data[0..6].store::<u8>(0b0001_01);
-        data[8..40].store::<i32>(minimum);
+        match minimum {
+          minimum if minimum>=(i8::MIN as i32) && minimum<=(i8::MAX as i32) => data[8..16].store::<i8>(minimum as i8),
+          minimum if minimum>=(i16::MIN as i32) && minimum<=(i16::MAX as i32) => data[8..24].store::<i16>(minimum as i16),
+          minimum=> data[8..40].store::<i32>(minimum),
+        };
       },
       DescriptorItem::LogicalMaximum(maximum) => {
         data[0..6].store::<u8>(0b0010_01);
-        data[8..40].store::<i32>(maximum);
+        match maximum {
+          maximum if maximum>=(i8::MIN as i32) && maximum<=(i8::MAX as i32) => data[8..16].store::<i8>(maximum as i8),
+          maximum if maximum>=(i16::MIN as i32) && maximum<=(i16::MAX as i32) => data[8..24].store::<i16>(maximum as i16),
+          maximum=> data[8..40].store::<i32>(maximum),
+        };
       },
       DescriptorItem::PhysicalMinimum(minimum) => {
         data[0..6].store::<u8>(0b0011_01);
-        data[8..40].store::<i32>(minimum);
+        match minimum {
+          minimum if minimum>=(i8::MIN as i32) && minimum<=(i8::MAX as i32) => data[8..16].store::<i8>(minimum as i8),
+          minimum if minimum>=(i16::MIN as i32) && minimum<=(i16::MAX as i32) => data[8..24].store::<i16>(minimum as i16),
+          minimum=> data[8..40].store::<i32>(minimum),
+        };
       },
       DescriptorItem::PhysicalMaximum(maximum) => {
         data[0..6].store::<u8>(0b0100_01);
-        data[8..40].store::<i32>(maximum);
+        match maximum {
+          maximum if maximum>=(i8::MIN as i32) && maximum<=(i8::MAX as i32) => data[8..16].store::<i8>(maximum as i8),
+          maximum if maximum>=(i16::MIN as i32) && maximum<=(i16::MAX as i32) => data[8..24].store::<i16>(maximum as i16),
+          maximum=> data[8..40].store::<i32>(maximum),
+        };
       },
       DescriptorItem::UnitExponent(exponent) => {
         data[0..6].store::<u8>(0b0101_01);
@@ -326,10 +342,26 @@ impl DescriptorItem {
       },
       0b1100_00 => DescriptorItem::EndCollection,
       0b0000_01 => DescriptorItem::UsagePage(data[0..16].load::<u16>()),
-      0b0001_01 => DescriptorItem::LogicalMinimum(data.load::<i32>()),
-      0b0010_01 => DescriptorItem::LogicalMaximum(data.load::<i32>()),
-      0b0011_01 => DescriptorItem::PhysicalMinimum(data.load::<i32>()),
-      0b0100_01 => DescriptorItem::PhysicalMaximum(data.load::<i32>()),
+      0b0001_01 => DescriptorItem::LogicalMinimum(match size {
+        1 => data[0..8].load::<i8>() as i32,
+        2 => data[0..16].load::<i16>() as i32,
+        _ => data.load::<i32>(),
+      }),
+      0b0010_01 => DescriptorItem::LogicalMaximum(match size {
+        1 => data[0..8].load::<i8>() as i32,
+        2 => data[0..16].load::<i16>() as i32,
+        _ => data.load::<i32>(),
+      }),
+      0b0011_01 => DescriptorItem::PhysicalMinimum(match size {
+        1 => data[0..8].load::<i8>() as i32,
+        2 => data[0..16].load::<i16>() as i32,
+        _ => data.load::<i32>(),
+      }),
+      0b0100_01 => DescriptorItem::PhysicalMaximum(match size {
+        1 => data[0..8].load::<i8>() as i32,
+        2 => data[0..16].load::<i16>() as i32,
+        _ => data.load::<i32>(),
+      }),
       0b0101_01 => DescriptorItem::UnitExponent(data[0..8].load::<i8>()),
       0b0110_01 => DescriptorItem::Unit(data.load::<u32>()),
       0b0111_01 => DescriptorItem::ReportSize(data.load::<u32>()),
