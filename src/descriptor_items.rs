@@ -390,3 +390,24 @@ impl DescriptorItem {
     }
   }
 }
+pub fn items_into_bitvec(items: Vec<DescriptorItem>) -> BitVec<u8, Msb0> {
+  let mut data = BitVec::new();
+  for item in items.into_iter() {
+    data.append(&mut item.into_bitvec());
+  };
+  data
+}
+pub fn items_from_bitvec(mut data: BitVec<u8, Msb0>) -> Vec<DescriptorItem> {
+  let mut items = vec![];
+  while data.len()>=8 {
+    let size = match data[6..8].load::<u8>() {
+      3 => 4,
+      size => size,
+    };
+    let remainder = data.split_off(8+(size as usize)*8);
+    let item = data;
+    data = remainder;
+    items.push(DescriptorItem::from_bitvec(item));
+  };
+  items
+}
