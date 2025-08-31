@@ -148,6 +148,7 @@ impl Report {
         };
         previous_field = field;
       };
+      field_sets.push(previous_fields);
     };
     for set in field_sets {
       if Some(set.len() as u32) != state.report_count {
@@ -209,11 +210,11 @@ impl Report {
                 _ => {},
               };
             };
-            let usages = usage_sets.clone().into_iter().flatten().collect::<Vec<u32>>();
+            let all_usages = usage_sets.clone().into_iter().flatten().collect::<Vec<u32>>();
             let mut continuous = true;
-            if set.len() == usages.len() {
-              let mut previous_usage_value = *usages.first().unwrap();
-              for usage_value in &usages[1..] {
+            if set.len() == all_usages.len() {
+              let mut previous_usage_value = *all_usages.first().unwrap();
+              for usage_value in &all_usages[1..] {
                 let previous_usage = Usage::try_from(previous_usage_value).unwrap();
                 let usage = Usage::try_from(*usage_value).unwrap();
                 if previous_usage.usage_id_value()+1 != usage.usage_id_value() || previous_usage.usage_page_value() != usage.usage_page_value() {
@@ -226,9 +227,9 @@ impl Report {
             else {
               continuous = false;
             };
-            if continuous {
-              let minimum = Usage::try_from(*usages.first().unwrap()).unwrap();
-              let maximum = Usage::try_from(*usages.first().unwrap()).unwrap();
+            if continuous && set.len() > 1 {
+              let minimum = Usage::try_from(*all_usages.first().unwrap()).unwrap();
+              let maximum = Usage::try_from(*all_usages.last().unwrap()).unwrap();
               if Some(minimum.usage_page_value()) != state.usage_page {
                 sequence.push(DescriptorItem::UsagePage(minimum.usage_page_value()));
                 state.usage_page = Some(minimum.usage_page_value());
@@ -268,7 +269,7 @@ impl Report {
             }),
             ReportType::Output => sequence.push(DescriptorItem::Output {
               constant: if *constant { ReportConstantFlag::Constant } else { ReportConstantFlag::Data },
-              layout: ReportLayoutFlag::Array,
+              layout: ReportLayoutFlag::Variable,
               relative: if *relative { ReportRelativeFlag::Relative } else { ReportRelativeFlag::Absolute },
               wrap: if *wrap { ReportWrapFlag::Wrap } else { ReportWrapFlag::NoWrap },
               linear: if *linear { ReportLinearFlag::Linear } else { ReportLinearFlag::NonLinear },
@@ -277,9 +278,9 @@ impl Report {
               volatile: if volatile.unwrap() { ReportVolatileFlag::Volatile } else { ReportVolatileFlag::NonVolatile },
               buffered_bytes: if *buffered_bytes { ReportBufferedBytesFlag::BufferedBytes } else { ReportBufferedBytesFlag::BitField },
             }),
-            ReportType::Feature => sequence.push(DescriptorItem::Output {
+            ReportType::Feature => sequence.push(DescriptorItem::Feature {
               constant: if *constant { ReportConstantFlag::Constant } else { ReportConstantFlag::Data },
-              layout: ReportLayoutFlag::Array,
+              layout: ReportLayoutFlag::Variable,
               relative: if *relative { ReportRelativeFlag::Relative } else { ReportRelativeFlag::Absolute },
               wrap: if *wrap { ReportWrapFlag::Wrap } else { ReportWrapFlag::NoWrap },
               linear: if *linear { ReportLinearFlag::Linear } else { ReportLinearFlag::NonLinear },
@@ -363,7 +364,7 @@ impl Report {
               volatile: ReportVolatileFlag::NonVolatile,
               buffered_bytes: ReportBufferedBytesFlag::BitField,
             }),
-            ReportType::Feature => sequence.push(DescriptorItem::Output {
+            ReportType::Feature => sequence.push(DescriptorItem::Feature {
               constant: if *constant { ReportConstantFlag::Constant } else { ReportConstantFlag::Data },
               layout: ReportLayoutFlag::Array,
               relative: if *relative { ReportRelativeFlag::Relative } else { ReportRelativeFlag::Absolute },

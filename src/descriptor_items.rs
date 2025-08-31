@@ -101,38 +101,38 @@ impl DescriptorItem {
     match self {
       DescriptorItem::Input { constant, layout, relative, wrap, linear, preferred_state, null_state, buffered_bytes } => {
         data[0..6].store::<u8>(0b1000_00);
-        data.set(8, constant==ReportConstantFlag::Constant);
-        data.set(9, layout==ReportLayoutFlag::Variable);
-        data.set(10, relative==ReportRelativeFlag::Relative);
-        data.set(11, wrap==ReportWrapFlag::Wrap);
-        data.set(12, linear==ReportLinearFlag::NonLinear);
-        data.set(13, preferred_state==ReportPreferredStateFlag::NoPreferred);
-        data.set(14, null_state==ReportNullStateFlag::NullState);
-        data.set(16, buffered_bytes==ReportBufferedBytesFlag::BufferedBytes);
+        data.set(15, constant==ReportConstantFlag::Constant);
+        data.set(14, layout==ReportLayoutFlag::Variable);
+        data.set(13, relative==ReportRelativeFlag::Relative);
+        data.set(12, wrap==ReportWrapFlag::Wrap);
+        data.set(11, linear==ReportLinearFlag::NonLinear);
+        data.set(10, preferred_state==ReportPreferredStateFlag::NoPreferred);
+        data.set(9, null_state==ReportNullStateFlag::NullState);
+        data.set(23, buffered_bytes==ReportBufferedBytesFlag::BufferedBytes);
       },
       DescriptorItem::Output { constant, layout, relative, wrap, linear, preferred_state, null_state, volatile, buffered_bytes } => {
         data[0..6].store::<u8>(0b1001_00);
-        data.set(8, constant==ReportConstantFlag::Constant);
-        data.set(9, layout==ReportLayoutFlag::Variable);
-        data.set(10, relative==ReportRelativeFlag::Relative);
-        data.set(11, wrap==ReportWrapFlag::Wrap);
-        data.set(12, linear==ReportLinearFlag::NonLinear);
-        data.set(13, preferred_state==ReportPreferredStateFlag::NoPreferred);
-        data.set(14, null_state==ReportNullStateFlag::NullState);
-        data.set(15, volatile==ReportVolatileFlag::Volatile);
-        data.set(16, buffered_bytes==ReportBufferedBytesFlag::BufferedBytes);
+        data.set(15, constant==ReportConstantFlag::Constant);
+        data.set(14, layout==ReportLayoutFlag::Variable);
+        data.set(13, relative==ReportRelativeFlag::Relative);
+        data.set(12, wrap==ReportWrapFlag::Wrap);
+        data.set(11, linear==ReportLinearFlag::NonLinear);
+        data.set(10, preferred_state==ReportPreferredStateFlag::NoPreferred);
+        data.set(9, null_state==ReportNullStateFlag::NullState);
+        data.set(8, volatile==ReportVolatileFlag::Volatile);
+        data.set(23, buffered_bytes==ReportBufferedBytesFlag::BufferedBytes);
       },
       DescriptorItem::Feature { constant, layout, relative, wrap, linear, preferred_state, null_state, volatile, buffered_bytes } => {
         data[0..6].store::<u8>(0b1011_00);
-        data.set(8, constant==ReportConstantFlag::Constant);
-        data.set(9, layout==ReportLayoutFlag::Variable);
-        data.set(10, relative==ReportRelativeFlag::Relative);
-        data.set(11, wrap==ReportWrapFlag::Wrap);
-        data.set(12, linear==ReportLinearFlag::NonLinear);
-        data.set(13, preferred_state==ReportPreferredStateFlag::NoPreferred);
-        data.set(14, null_state==ReportNullStateFlag::NullState);
-        data.set(15, volatile==ReportVolatileFlag::Volatile);
-        data.set(16, buffered_bytes==ReportBufferedBytesFlag::BufferedBytes);
+        data.set(15, constant==ReportConstantFlag::Constant);
+        data.set(14, layout==ReportLayoutFlag::Variable);
+        data.set(13, relative==ReportRelativeFlag::Relative);
+        data.set(12, wrap==ReportWrapFlag::Wrap);
+        data.set(11, linear==ReportLinearFlag::NonLinear);
+        data.set(10, preferred_state==ReportPreferredStateFlag::NoPreferred);
+        data.set(9, null_state==ReportNullStateFlag::NullState);
+        data.set(8, volatile==ReportVolatileFlag::Volatile);
+        data.set(23, buffered_bytes==ReportBufferedBytesFlag::BufferedBytes);
       },
       DescriptorItem::Collection(ty) => {
         data[0..6].store::<u8>(0b1010_00);
@@ -296,36 +296,36 @@ impl DescriptorItem {
     };
     match item[0..6].load::<u8>() {
       0b1000_00 => DescriptorItem::Input {
-        constant: if *data.get(0).unwrap() { ReportConstantFlag::Constant } else { ReportConstantFlag::Data },
-        layout: if *data.get(1).unwrap() { ReportLayoutFlag::Variable } else { ReportLayoutFlag::Array },
-        relative: if *data.get(2).unwrap() { ReportRelativeFlag::Relative } else { ReportRelativeFlag::Absolute },
-        wrap: if *data.get(3).unwrap() { ReportWrapFlag::Wrap } else { ReportWrapFlag::NoWrap },
-        linear: if *data.get(4).unwrap() { ReportLinearFlag::NonLinear } else { ReportLinearFlag::Linear },
-        preferred_state: if *data.get(5).unwrap() { ReportPreferredStateFlag::NoPreferred } else { ReportPreferredStateFlag::PreferredState },
-        null_state: if *data.get(6).unwrap() { ReportNullStateFlag::NullState } else { ReportNullStateFlag::NoNullPosition },
-        buffered_bytes: if *data.get(8).unwrap() { ReportBufferedBytesFlag::BufferedBytes } else { ReportBufferedBytesFlag::BitField },
+        constant: if *data.get(7).unwrap() { ReportConstantFlag::Constant } else { ReportConstantFlag::Data },
+        layout: if *data.get(6).unwrap() { ReportLayoutFlag::Variable } else { ReportLayoutFlag::Array },
+        relative: if *data.get(5).unwrap() { ReportRelativeFlag::Relative } else { ReportRelativeFlag::Absolute },
+        wrap: if *data.get(4).unwrap() { ReportWrapFlag::Wrap } else { ReportWrapFlag::NoWrap },
+        linear: if *data.get(3).unwrap() { ReportLinearFlag::NonLinear } else { ReportLinearFlag::Linear },
+        preferred_state: if *data.get(2).unwrap() { ReportPreferredStateFlag::NoPreferred } else { ReportPreferredStateFlag::PreferredState },
+        null_state: if *data.get(1).unwrap() { ReportNullStateFlag::NullState } else { ReportNullStateFlag::NoNullPosition },
+        buffered_bytes: if *data.get(15).unwrap() { ReportBufferedBytesFlag::BufferedBytes } else { ReportBufferedBytesFlag::BitField },
       },
       0b1001_00 => DescriptorItem::Output {
-        constant: if *data.get(0).unwrap() { ReportConstantFlag::Constant } else { ReportConstantFlag::Data },
-        layout: if *data.get(1).unwrap() { ReportLayoutFlag::Variable } else { ReportLayoutFlag::Array },
-        relative: if *data.get(2).unwrap() { ReportRelativeFlag::Relative } else { ReportRelativeFlag::Absolute },
-        wrap: if *data.get(3).unwrap() { ReportWrapFlag::Wrap } else { ReportWrapFlag::NoWrap },
-        linear: if *data.get(4).unwrap() { ReportLinearFlag::NonLinear } else { ReportLinearFlag::Linear },
-        preferred_state: if *data.get(5).unwrap() { ReportPreferredStateFlag::NoPreferred } else { ReportPreferredStateFlag::PreferredState },
-        null_state: if *data.get(6).unwrap() { ReportNullStateFlag::NullState } else { ReportNullStateFlag::NoNullPosition },
-        volatile: if *data.get(7).unwrap() { ReportVolatileFlag::Volatile } else { ReportVolatileFlag::NonVolatile },
-        buffered_bytes: if *data.get(8).unwrap() { ReportBufferedBytesFlag::BufferedBytes } else { ReportBufferedBytesFlag::BitField },
+        constant: if *data.get(7).unwrap() { ReportConstantFlag::Constant } else { ReportConstantFlag::Data },
+        layout: if *data.get(6).unwrap() { ReportLayoutFlag::Variable } else { ReportLayoutFlag::Array },
+        relative: if *data.get(5).unwrap() { ReportRelativeFlag::Relative } else { ReportRelativeFlag::Absolute },
+        wrap: if *data.get(4).unwrap() { ReportWrapFlag::Wrap } else { ReportWrapFlag::NoWrap },
+        linear: if *data.get(3).unwrap() { ReportLinearFlag::NonLinear } else { ReportLinearFlag::Linear },
+        preferred_state: if *data.get(2).unwrap() { ReportPreferredStateFlag::NoPreferred } else { ReportPreferredStateFlag::PreferredState },
+        null_state: if *data.get(1).unwrap() { ReportNullStateFlag::NullState } else { ReportNullStateFlag::NoNullPosition },
+        volatile: if *data.get(0).unwrap() { ReportVolatileFlag::Volatile } else { ReportVolatileFlag::NonVolatile },
+        buffered_bytes: if *data.get(15).unwrap() { ReportBufferedBytesFlag::BufferedBytes } else { ReportBufferedBytesFlag::BitField },
       },
       0b1011_00 => DescriptorItem::Feature {
-        constant: if *data.get(0).unwrap() { ReportConstantFlag::Constant } else { ReportConstantFlag::Data },
-        layout: if *data.get(1).unwrap() { ReportLayoutFlag::Variable } else { ReportLayoutFlag::Array },
-        relative: if *data.get(2).unwrap() { ReportRelativeFlag::Relative } else { ReportRelativeFlag::Absolute },
-        wrap: if *data.get(3).unwrap() { ReportWrapFlag::Wrap } else { ReportWrapFlag::NoWrap },
-        linear: if *data.get(4).unwrap() { ReportLinearFlag::NonLinear } else { ReportLinearFlag::Linear },
-        preferred_state: if *data.get(5).unwrap() { ReportPreferredStateFlag::NoPreferred } else { ReportPreferredStateFlag::PreferredState },
-        null_state: if *data.get(6).unwrap() { ReportNullStateFlag::NullState } else { ReportNullStateFlag::NoNullPosition },
-        volatile: if *data.get(7).unwrap() { ReportVolatileFlag::Volatile } else { ReportVolatileFlag::NonVolatile },
-        buffered_bytes: if *data.get(8).unwrap() { ReportBufferedBytesFlag::BufferedBytes } else { ReportBufferedBytesFlag::BitField },
+        constant: if *data.get(7).unwrap() { ReportConstantFlag::Constant } else { ReportConstantFlag::Data },
+        layout: if *data.get(6).unwrap() { ReportLayoutFlag::Variable } else { ReportLayoutFlag::Array },
+        relative: if *data.get(5).unwrap() { ReportRelativeFlag::Relative } else { ReportRelativeFlag::Absolute },
+        wrap: if *data.get(4).unwrap() { ReportWrapFlag::Wrap } else { ReportWrapFlag::NoWrap },
+        linear: if *data.get(3).unwrap() { ReportLinearFlag::NonLinear } else { ReportLinearFlag::Linear },
+        preferred_state: if *data.get(2).unwrap() { ReportPreferredStateFlag::NoPreferred } else { ReportPreferredStateFlag::PreferredState },
+        null_state: if *data.get(1).unwrap() { ReportNullStateFlag::NullState } else { ReportNullStateFlag::NoNullPosition },
+        volatile: if *data.get(0).unwrap() { ReportVolatileFlag::Volatile } else { ReportVolatileFlag::NonVolatile },
+        buffered_bytes: if *data.get(15).unwrap() { ReportBufferedBytesFlag::BufferedBytes } else { ReportBufferedBytesFlag::BitField },
       },
       0b1010_00 => DescriptorItem::Collection(match data.load::<u32>() {
         0 => CollectionType::Physical,
