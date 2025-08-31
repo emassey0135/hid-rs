@@ -56,7 +56,7 @@ pub enum CollectionType {
   VendorDefined(u8),
 }
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub enum Usage {
+pub enum UsageSpecifier {
   Usage(u16),
   ExtendedUsage(u32),
 }
@@ -84,9 +84,9 @@ pub enum DescriptorItem {
   ReportCount(u32),
   Push,
   Pop,
-  Usage(Usage),
-  UsageMinimum(Usage),
-  UsageMaximum(Usage),
+  Usage(UsageSpecifier),
+  UsageMinimum(UsageSpecifier),
+  UsageMaximum(UsageSpecifier),
   DesignatorIndex(u32),
   DesignatorMinimum(u32),
   DesignatorMaximum(u32),
@@ -215,22 +215,22 @@ impl DescriptorItem {
       DescriptorItem::Usage(usage) => {
         data[0..6].store::<u8>(0b0000_10);
         match usage {
-          Usage::Usage(usage) => data[8..24].store::<u16>(usage),
-          Usage::ExtendedUsage(usage) => data[8..40].store::<u32>(usage),
+          UsageSpecifier::Usage(usage) => data[8..24].store::<u16>(usage),
+          UsageSpecifier::ExtendedUsage(usage) => data[8..40].store::<u32>(usage),
         };
       },
       DescriptorItem::UsageMinimum(usage) => {
         data[0..6].store::<u8>(0b0001_10);
         match usage {
-          Usage::Usage(usage) => data[8..24].store::<u16>(usage),
-          Usage::ExtendedUsage(usage) => data[8..40].store::<u32>(usage),
+          UsageSpecifier::Usage(usage) => data[8..24].store::<u16>(usage),
+          UsageSpecifier::ExtendedUsage(usage) => data[8..40].store::<u32>(usage),
         };
       },
       DescriptorItem::UsageMaximum(usage) => {
         data[0..6].store::<u8>(0b0010_10);
         match usage {
-          Usage::Usage(usage) => data[8..24].store::<u16>(usage),
-          Usage::ExtendedUsage(usage) => data[8..40].store::<u32>(usage),
+          UsageSpecifier::Usage(usage) => data[8..24].store::<u16>(usage),
+          UsageSpecifier::ExtendedUsage(usage) => data[8..40].store::<u32>(usage),
         };
       },
       DescriptorItem::DesignatorIndex(index) => {
@@ -368,16 +368,16 @@ impl DescriptorItem {
       0b1010_01 => DescriptorItem::Push,
       0b1011_01 => DescriptorItem::Pop,
       0b0000_10 => DescriptorItem::Usage(match size {
-        1 | 2 => Usage::Usage(data[0..16].load::<u16>()),
-        _ => Usage::ExtendedUsage(data.load::<u32>()),
+        1 | 2 => UsageSpecifier::Usage(data[0..16].load::<u16>()),
+        _ => UsageSpecifier::ExtendedUsage(data.load::<u32>()),
       }),
       0b0001_10 => DescriptorItem::UsageMinimum(match size {
-        1 | 2 => Usage::Usage(data[0..16].load::<u16>()),
-        _ => Usage::ExtendedUsage(data.load::<u32>()),
+        1 | 2 => UsageSpecifier::Usage(data[0..16].load::<u16>()),
+        _ => UsageSpecifier::ExtendedUsage(data.load::<u32>()),
       }),
       0b0010_10 => DescriptorItem::UsageMaximum(match size {
-        1 | 2 => Usage::Usage(data[0..16].load::<u16>()),
-        _ => Usage::ExtendedUsage(data.load::<u32>()),
+        1 | 2 => UsageSpecifier::Usage(data[0..16].load::<u16>()),
+        _ => UsageSpecifier::ExtendedUsage(data.load::<u32>()),
       }),
       0b0011_10 => DescriptorItem::DesignatorIndex(data.load::<u32>()),
       0b0100_10 => DescriptorItem::DesignatorMinimum(data.load::<u32>()),

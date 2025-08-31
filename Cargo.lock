@@ -25,7 +25,14 @@ name = "hid"
 version = "0.1.0"
 dependencies = [
  "bitvec",
+ "hut",
 ]
+
+[[package]]
+name = "hut"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c69be4a9d43b7aaa826b7bce39f636b9a418b7aaabab0ef08ffb92582946a7ec"
 
 [[package]]
 name = "radium"
