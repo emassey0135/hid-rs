@@ -22,6 +22,7 @@ pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8,
           if value < logical_minimum as u32 || value > logical_maximum as u32 {
             panic!("Value is out of the specified range")
           };
+          data.resize(cursor+(size as usize), false);
           data[cursor..cursor+(size as usize)].store_be::<u32>(value);
           cursor += size as usize;
         }
@@ -35,6 +36,7 @@ pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8,
             };
             (logical_maximum as u32)+1
           };
+          data.resize(cursor+(size as usize), false);
           data[cursor..cursor+(size as usize)].store_be::<u32>(null_value);
           cursor += size as usize;
         };
@@ -44,6 +46,7 @@ pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8,
           if value < logical_minimum || value > logical_maximum {
             panic!("Value is out of the specified range")
           };
+          data.resize(cursor+(size as usize), false);
           data[cursor..cursor+(size as usize)].store_be::<i32>(value);
           cursor += size as usize;
         }
@@ -57,6 +60,7 @@ pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8,
             };
             logical_maximum+1
           };
+          data.resize(cursor+(size as usize), false);
           data[cursor..cursor+(size as usize)].store_be::<i32>(null_value);
           cursor += size as usize;
         };
@@ -70,6 +74,7 @@ pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8,
           if value > logical_maximum as u32 {
             panic!("Value is out of the specified range")
           };
+          data.resize(cursor+(size as usize), false);
           data[cursor..cursor+(size as usize)].store_be::<u32>(value);
           cursor += size as usize;
         }
@@ -83,6 +88,7 @@ pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8,
             };
             (logical_maximum as u32)+1
           };
+          data.resize(cursor+(size as usize), false);
           data[cursor..cursor+(size as usize)].store_be::<u32>(null_value);
           cursor += size as usize;
         };
