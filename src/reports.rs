@@ -15,6 +15,9 @@ pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8,
     data.store::<u8>(id);
     cursor = 8;
   };
+  if report.fields.len() != values.len() {
+    panic!("Either not enough or too many values provided");
+  };
   for (field, value) in report.fields.into_iter().zip(values.into_iter()) {
     match (field, value) {
       (ReportField::Variable { size, logical_minimum, logical_maximum, .. }, ReportFieldValue::UnsignedVariable(value)) if logical_minimum >= 0 && logical_maximum >= 0 => {

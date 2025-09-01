@@ -98,6 +98,7 @@ pub enum DescriptorItem {
 impl DescriptorItem {
   pub fn into_bitvec(self) -> BitVec<u8, Msb0> {
     let mut data = bitvec![u8, Msb0; 0; 40];
+  let mut needs_extra_byte = false;
     match self {
       DescriptorItem::Input { constant, layout, relative, wrap, linear, preferred_state, null_state, buffered_bytes } => {
         data[0..6].store::<u8>(0b1000_00);
@@ -158,32 +159,56 @@ impl DescriptorItem {
         data[0..6].store::<u8>(0b0001_01);
         match minimum {
           minimum if minimum>=(i8::MIN as i32) && minimum<=(i8::MAX as i32) => data[8..16].store::<i8>(minimum as i8),
-          minimum if minimum>=(i16::MIN as i32) && minimum<=(i16::MAX as i32) => data[8..24].store::<i16>(minimum as i16),
-          minimum=> data[8..40].store::<i32>(minimum),
+          minimum if minimum>=(i16::MIN as i32) && minimum<=(i16::MAX as i32) => {
+            needs_extra_byte = minimum > 0 && minimum <= u8::MAX as i32;
+            data[8..24].store::<i16>(minimum as i16)
+          },
+          minimum=> {
+            needs_extra_byte = minimum > 0 && minimum <= u16::MAX as i32;
+            data[8..40].store::<i32>(minimum)
+          },
         };
       },
       DescriptorItem::LogicalMaximum(maximum) => {
         data[0..6].store::<u8>(0b0010_01);
         match maximum {
           maximum if maximum>=(i8::MIN as i32) && maximum<=(i8::MAX as i32) => data[8..16].store::<i8>(maximum as i8),
-          maximum if maximum>=(i16::MIN as i32) && maximum<=(i16::MAX as i32) => data[8..24].store::<i16>(maximum as i16),
-          maximum=> data[8..40].store::<i32>(maximum),
+          maximum if maximum>=(i16::MIN as i32) && maximum<=(i16::MAX as i32) => {
+            needs_extra_byte = maximum > 0 && maximum <= u8::MAX as i32;
+            data[8..24].store::<i16>(maximum as i16)
+          },
+          maximum=> {
+            needs_extra_byte = maximum > 0 && maximum <= u16::MAX as i32;
+            data[8..40].store::<i32>(maximum)
+          },
         };
       },
       DescriptorItem::PhysicalMinimum(minimum) => {
         data[0..6].store::<u8>(0b0011_01);
         match minimum {
           minimum if minimum>=(i8::MIN as i32) && minimum<=(i8::MAX as i32) => data[8..16].store::<i8>(minimum as i8),
-          minimum if minimum>=(i16::MIN as i32) && minimum<=(i16::MAX as i32) => data[8..24].store::<i16>(minimum as i16),
-          minimum=> data[8..40].store::<i32>(minimum),
+          minimum if minimum>=(i16::MIN as i32) && minimum<=(i16::MAX as i32) => {
+            needs_extra_byte = minimum > 0 && minimum <= u8::MAX as i32;
+            data[8..24].store::<i16>(minimum as i16)
+          },
+          minimum=> {
+            needs_extra_byte = minimum > 0 && minimum <= u16::MAX as i32;
+            data[8..40].store::<i32>(minimum)
+          },
         };
       },
       DescriptorItem::PhysicalMaximum(maximum) => {
         data[0..6].store::<u8>(0b0100_01);
         match maximum {
           maximum if maximum>=(i8::MIN as i32) && maximum<=(i8::MAX as i32) => data[8..16].store::<i8>(maximum as i8),
-          maximum if maximum>=(i16::MIN as i32) && maximum<=(i16::MAX as i32) => data[8..24].store::<i16>(maximum as i16),
-          maximum=> data[8..40].store::<i32>(maximum),
+          maximum if maximum>=(i16::MIN as i32) && maximum<=(i16::MAX as i32) => {
+            needs_extra_byte = maximum > 0 && maximum <= u8::MAX as i32;
+            data[8..24].store::<i16>(maximum as i16)
+          },
+          maximum=> {
+            needs_extra_byte = maximum > 0 && maximum <= u16::MAX as i32;
+            data[8..40].store::<i32>(maximum)
+          },
         };
       },
       DescriptorItem::UnitExponent(exponent) => {
@@ -266,12 +291,18 @@ impl DescriptorItem {
     for i in 0..4 {
       has_value[i] = data[8+i*8..16+i*8].load::<u8>()!=0;
     };
-    let size: u8 = match has_value[..] {
+    let size: u8 = match has_value[0..4] {
       [false, false, false, false] => 0,
       [true, false, false, false] => 1,
-      [true, true, false, false] => 2,
+      [_, true, false, false] => 2,
       _ => 4,
     };
+  let size = match (size, needs_extra_byte) {
+    (0, true) => 1,
+    (1, true) => 2,
+    (2, true) => 4,
+    (size, _) => size,
+  };
     data.truncate((8+size*8) as usize);
     data[6..8].store::<u8>(match size {
       4 => 3,
