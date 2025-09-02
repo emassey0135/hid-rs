@@ -238,11 +238,11 @@ impl Report {
               sequence.push(DescriptorItem::UsageMaximum(UsageSpecifier::Usage(maximum.usage_id_value())));
             }
             else {
-              for usages in usage_sets {
+              for (index, usages) in usage_sets.iter().enumerate() {
                 if usages.len() != 1 {
                   sequence.push(DescriptorItem::Delimiter(DelimiterFlag::Open));
                 };
-                for usage_value in &usages {
+                for usage_value in usages {
                   let usage = Usage::try_from(*usage_value).unwrap();
                   if Some(usage.usage_page_value()) != state.usage_page {
                     sequence.push(DescriptorItem::UsagePage(usage.usage_page_value()));
@@ -252,6 +252,9 @@ impl Report {
                 };
                 if usages.len() != 1 {
                   sequence.push(DescriptorItem::Delimiter(DelimiterFlag::Close));
+                };
+                if usage_sets[index..].into_iter().all(|set| set==usages) {
+                  break;
                 };
               };
             };
