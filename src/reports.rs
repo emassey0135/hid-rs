@@ -1,5 +1,4 @@
 use bitvec::prelude::*;
-use crate::descriptor_items::*;
 use crate::descriptors::*;
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ReportFieldValue {
@@ -7,8 +6,8 @@ pub enum ReportFieldValue {
   SignedVariable(Option<i32>),
   Array(Option<u32>),
 }
-pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8, Msb0> {
-  let mut data = BitVec::new();
+pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8, Lsb0> {
+  let mut data = BitVec::<u8, Lsb0>::new();
   let mut cursor: usize = 0;
   if let Some(id) = report.id {
     data.resize(8, false);
@@ -100,8 +99,17 @@ pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8,
     };
   };
   data
+    .chunks(8)
+    .rev()
+    .flatten()
+    .collect::<BitVec<u8, Lsb0>>()
 }
-pub fn read_report(report: Report, data: BitVec<u8, Msb0>) -> Vec<ReportFieldValue> {
+pub fn read_report(report: Report, data: BitVec<u8, Lsb0>) -> Vec<ReportFieldValue> {
+  let data = data
+    .chunks(8)
+    .rev()
+    .flatten()
+    .collect::<BitVec<u8, Lsb0>>();
   let mut values = vec![];
   let mut cursor: usize = 0;
   if let Some(id) = report.id {
