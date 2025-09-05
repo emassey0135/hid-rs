@@ -99,17 +99,8 @@ pub fn write_report(report: Report, values: Vec<ReportFieldValue>) -> BitVec<u8,
     };
   };
   data
-    .chunks(8)
-    .rev()
-    .flatten()
-    .collect::<BitVec<u8, Lsb0>>()
 }
 pub fn read_report(report: Report, data: BitVec<u8, Lsb0>) -> Vec<ReportFieldValue> {
-  let data = data
-    .chunks(8)
-    .rev()
-    .flatten()
-    .collect::<BitVec<u8, Lsb0>>();
   let mut values = vec![];
   let mut cursor: usize = 0;
   if let Some(id) = report.id {
